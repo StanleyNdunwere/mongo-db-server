@@ -17,9 +17,10 @@
 //             }
 //     });
 //
+//
 //     client.close();
 // }});
-
+//
 const {MongoClient, ObjectID} = require('mongodb');
 
 MongoClient.connect('mongodb://127.0.0.1:27017/TodoApp',(err, client)=>{
@@ -28,18 +29,18 @@ MongoClient.connect('mongodb://127.0.0.1:27017/TodoApp',(err, client)=>{
     }else{
         console.log('connected successfully');
         const db = client.db('TodoApp');
-        // db.collection('Users').insertOne({
-        //     name: 'Jothrew Mead',
-        //     age: '25',
-        //     location: 'kansas'
-        // }, (err, result)=>{
-        //    if(err){
-        //        console.log('failed to insert document');
-        //    } else{
-        //        console.log('document inserted successfully');
-        //        console.log(result.ops[0]._id.getTimestamp());
-        //    }
-        // });
+        db.collection('Users').insertOne({
+            name: 'Jothrew Mead',
+            age: '25',
+            location: 'kansas'
+        }, (err, result)=>{
+           if(err){
+               console.log('failed to insert document');
+           } else{
+               console.log('document inserted successfully');
+               console.log(result.ops[0]._id.getTimestamp());
+           }
+        });
         async function awaitResult (){
             const docs = await db.collection('Users').find({name: 'Jothrew Mead'}).toArray();
             const jsonDocs = JSON.stringify(docs);
@@ -50,8 +51,18 @@ MongoClient.connect('mongodb://127.0.0.1:27017/TodoApp',(err, client)=>{
             const jsonVal = JSON.stringify(value);
             console.log(jsonVal);
         }
-        awaitResultCount();
-        awaitResult();
+
+        async function findOneAndDelete (){
+            const value = await db.collection('Users').findOneAndDelete({name: "Andrew Mead"});
+            console.log(value);
+        }
+
+        findOneAndDelete()
+        // awaitResultCount();
+        // awaitResult();
+
+
+
     client.close();
     }
 });
