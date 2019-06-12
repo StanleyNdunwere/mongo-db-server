@@ -33,15 +33,28 @@ app.post('/todos', (req, res) => {
 
 app.get('/todos', (req, res) => {
     let allTodos = async () => {
-        let todosList =  await todos.getAllTodos();
+        let todosList = await todos.getAllTodos();
         res.send({todosList});
     }
     allTodos();
 });
 
-app.get('/todos/:id', (req, res)=>{
+app.get('/todos/:id', (req, res) => {
     console.log(req.params);
     res.send(req.params);
+});
+
+
+app.post("/users/register", (req, res) => {
+    let signUp = async () => {
+        console.log(req.body.email);
+        let response = await user.register({
+            email: req.body.email,
+            password: req.body.password
+        });
+        await res.header('x-auth', response[1]).send(response[0]);
+    };
+    signUp();
 });
 
 app.listen(process.env.PORT || 3000);
