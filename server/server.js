@@ -1,8 +1,11 @@
 const express = require('express');
 const parser = require('body-parser');
 let {mongoose} = require('mongoose');
-let user = require('../models/user-model');
+let Users = require('../models/user-model');
 let todos = require('../models/todos-model');
+const {authenticate} = require('../middleware/authenticate');
+const {cryptPassword} = require('../middleware/passwordHash');
+const {loginHandler}= require('../middleware/login');
 
 let app = express();
 
@@ -45,10 +48,14 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
-app.post("/users/register", (req, res) => {
+app.post("/users/login", loginHandler, (req, res) => {
+        res.header('x-auth', req.response.token).send(req.response.email);
+});
+
+app.post("/Users/register", cryptPassword, (req, res) => {
     let signUp = async () => {
         console.log(req.body.email);
-        let response = await user.register({
+        let response = await Users.register({
             email: req.body.email,
             password: req.body.password
         });
@@ -57,6 +64,9 @@ app.post("/users/register", (req, res) => {
     signUp();
 });
 
+app.get("/Users/me", authenticate, (req, res) => {
+    res.send(req.data);
+});
 app.listen(process.env.PORT || 3000);
 
 
@@ -148,7 +158,7 @@ app.listen(process.env.PORT || 3000);
 // saveOldUser();
 //
 //
-// let users = new mongoose.model("users",{
+// let Users = new mongoose.model("Users",{
 //     email : {
 //         type: String,
 //         trim: true,
@@ -157,7 +167,7 @@ app.listen(process.env.PORT || 3000);
 //     }
 // });
 //
-// let newUser = new users({
+// let newUser = new Users({
 //    email : 'mongoosetest@mongoose.com'
 // });
 //

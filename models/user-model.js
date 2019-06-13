@@ -49,6 +49,32 @@ userSchema.methods.generateAuthToken = async function () {
     return [returnValue, token];
 };
 
+userSchema.statics.findByToken = async function (token) {
+    let decodedToken;
+    let trueToken;
+    try {
+        decodedToken = jwt.verify(token, "abc123");
+        trueToken = await Users.findOne({
+            "_id": decodedToken._id,
+            "tokens.token": token,
+            "tokens.access": "auth"
+        });
+        if (!trueToken) {
+            return {
+                error: "user account deleted",
+                status: 404
+            }
+        };
+    } catch (e) {
+        trueToken = {error: "authentication error",
+                    status: 401};
+    }
+    trueToken.status = 400;
+    trueToken = _.pick(trueToken, ['_id', 'email', 'status']);
+    console.log(trueToken);
+    return trueToken;
+};
+
 let Users = mongoose.model("Users", userSchema);
 
 let register = async (obj) => {
@@ -64,6 +90,6 @@ let register = async (obj) => {
 }
 
 module.exports = {
-    users: Users,
+    Users,
     register
 }
